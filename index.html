@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PM Internship | ML-Powered Recommendations</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1a2d4a; --navy2: #243c5e; --orange: #e8891a; --green: #22c55e;
+    --bg: #f0f4f8; --white: #ffffff; --gray: #94a3b8; --gray2: #64748b;
+    --light: #e2e8f0; --text: #1e293b; --subtext: #64748b; --border: #e2e8f0;
+    --shadow: 0 2px 16px rgba(0,0,0,0.08); --radius: 14px;
+  }
+  body { font-family: 'Noto Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  nav { background: var(--white); box-shadow: 0 1px 8px rgba(0,0,0,0.07); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { display: flex; align-items: center; gap: 10px; }
+  .nav-logo { width: 38px; height: 38px; border-radius: 8px; background: linear-gradient(135deg, #2d6a4f, #52b788); display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; font-size: 13px; }
+  .nav-title { font-size: 17px; font-weight: 700; color: var(--navy); }
+  .nav-title span { display: block; font-size: 11px; color: var(--gray2); font-weight: 400; }
+  .ml-badge { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
+  .btn-primary { background: var(--navy); color: white; border: none; padding: 10px 22px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-primary:hover { background: var(--navy2); }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* LANDING */
+  .hero { text-align: center; padding: 80px 24px 60px; background: linear-gradient(160deg, #f8fafc 0%, #eef2f7 100%); }
+  .ai-badge { display: inline-flex; align-items: center; gap: 6px; background: #fff7ed; border: 1px solid #fdd8a0; color: #c87b12; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 20px; margin-bottom: 28px; }
+  .hero h1 { font-size: clamp(32px, 5vw, 52px); font-weight: 800; color: var(--navy); margin-bottom: 18px; }
+  .hero h1 span { color: var(--orange); }
+  .hero p { font-size: 17px; color: var(--subtext); max-width: 560px; margin: 0 auto 6px; line-height: 1.7; }
+  .hero .hindi { font-size: 14px; color: var(--gray); margin-bottom: 36px; }
+  .btn-hero { display: inline-flex; align-items: center; gap: 8px; background: var(--navy); color: white; padding: 16px 40px; border-radius: 10px; font-size: 17px; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-hero:hover { background: #0f1e32; transform: translateY(-1px); }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; max-width: 860px; margin: 52px auto 0; padding: 0 24px; }
+  .stat-card { background: white; border-radius: var(--radius); padding: 24px 16px; text-align: center; box-shadow: var(--shadow); }
+  .stat-num { font-size: 28px; font-weight: 800; color: var(--navy); }
+  .stat-label { font-size: 13px; color: var(--subtext); margin-top: 4px; }
+  .how-section { padding: 72px 24px; background: white; }
+  .how-section h2 { text-align: center; font-size: 28px; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
+  .how-section .sub { text-align: center; color: var(--subtext); margin-bottom: 48px; }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 900px; margin: 0 auto; }
+  .step-card { background: var(--bg); border-radius: var(--radius); padding: 32px 24px; text-align: center; }
+  .step-num { width: 32px; height: 32px; background: var(--navy); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 16px auto 12px; }
+  .step-icon { font-size: 36px; }
+  .step-title { font-size: 16px; font-weight: 700; color: var(--navy); }
+  .step-title .hindi { display: block; font-size: 12px; color: var(--orange); font-weight: 500; margin-top: 2px; }
+  .step-desc { font-size: 13px; color: var(--subtext); margin-top: 8px; line-height: 1.6; }
+  .cta-band { background: var(--navy); padding: 64px 24px; text-align: center; }
+  .cta-band h2 { color: white; font-size: 26px; font-weight: 800; margin-bottom: 10px; }
+  .cta-band p { color: #94a3b8; font-size: 14px; margin-bottom: 24px; }
+  .btn-cta { background: var(--orange); color: white; border: none; padding: 16px 40px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; }
+
+  /* WIZARD */
+  .wizard-inner { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+  .progress-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; position: relative; }
+  .progress-track { position: absolute; top: 18px; left: 18px; right: 18px; height: 3px; background: var(--light); z-index: 0; }
+  .progress-fill { height: 3px; background: linear-gradient(90deg, var(--green), var(--orange)); transition: width 0.5s; z-index: 1; position: absolute; top: 0; left: 0; }
+  .step-dot-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .step-dot { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; z-index: 2; position: relative; transition: all 0.3s; background: var(--light); color: var(--gray2); flex-shrink: 0; }
+  .step-dot.completed { background: var(--green); color: white; }
+  .step-dot.active { background: var(--navy); color: white; }
+  .step-dot-label { font-size: 11px; color: var(--gray2); font-weight: 600; }
+  .step-dot-wrap.active .step-dot-label { color: var(--navy); }
+  .wizard-card { background: white; border-radius: 20px; box-shadow: 0 4px 32px rgba(0,0,0,0.08); }
+  .card-header { text-align: center; padding: 40px 40px 24px; }
+  .card-avatar { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #c87b12, #e8891a); display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 18px; }
+  .card-title { font-size: 22px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+  .card-sub { font-size: 14px; color: var(--subtext); }
+  .card-body { padding: 0 32px 32px; }
+  .field-label { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; margin-top: 20px; display: block; }
+  .text-input { width: 100%; padding: 14px 16px 14px 44px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 15px; font-family: inherit; outline: none; transition: border 0.2s; }
+  .text-input:focus { border-color: var(--navy); }
+  .input-wrap { position: relative; }
+  .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; }
+  .option-row { display: flex; align-items: center; gap: 16px; border: 1.5px solid var(--border); border-radius: 12px; padding: 16px 20px; cursor: pointer; margin-bottom: 10px; transition: all 0.2s; }
+  .option-row:hover { border-color: var(--navy); background: #f8faff; }
+  .option-row.selected { border-color: var(--navy); background: #f0f4f8; }
+  .opt-icon { font-size: 24px; flex-shrink: 0; }
+  .opt-title { font-size: 15px; font-weight: 700; color: var(--navy); }
+  .opt-hindi { font-size: 12px; color: var(--subtext); }
+  .opt-check { width: 22px; height: 22px; border-radius: 50%; background: var(--green); display: none; align-items: center; justify-content: center; color: white; font-size: 12px; flex-shrink: 0; }
+  .option-row.selected .opt-check { display: flex; }
+  .chip-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .chip { padding: 8px 16px; border: 1.5px solid var(--border); border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.2s; background: white; }
+  .chip:hover { border-color: var(--navy); }
+  .chip.selected { border-color: var(--navy); background: var(--navy); color: white; }
+  .skill-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px; }
+  .skill-card { border: 1.5px solid var(--border); border-radius: 12px; padding: 16px 12px; text-align: center; cursor: pointer; transition: all 0.2s; background: white; }
+  .skill-card:hover { border-color: var(--navy); }
+  .skill-card.selected { border-color: var(--navy); background: #f0f4f8; }
+  .sk-icon { font-size: 24px; margin-bottom: 6px; display: block; }
+  .sk-label { font-size: 12px; font-weight: 600; }
+  .interest-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .interest-card { border: 1.5px solid var(--border); border-radius: 12px; padding: 18px 10px; text-align: center; cursor: pointer; transition: all 0.2s; background: white; position: relative; }
+  .interest-card:hover { border-color: var(--navy); }
+  .interest-card.selected { border-color: var(--navy); background: #f0f4f8; }
+  .chk { position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; background: var(--green); border-radius: 50%; display: none; align-items: center; justify-content: center; color: white; font-size: 11px; }
+  .interest-card.selected .chk { display: flex; }
+  .int-icon-wrap { width: 44px; height: 44px; border-radius: 50%; background: #f0f4f8; display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 8px; }
+  .int-name { font-size: 12px; font-weight: 700; color: var(--navy); }
+  .int-hindi { font-size: 10px; color: var(--subtext); margin-top: 2px; }
+  .selected-count { text-align: center; padding: 10px; border-radius: 8px; background: #f0fdf4; color: #166534; font-size: 13px; font-weight: 600; margin-top: 14px; }
+  .select-input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 15px; font-family: inherit; outline: none; background: white; }
+  .section-label { font-size: 12px; font-weight: 700; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.5px; margin: 18px 0 8px; }
+  .wizard-nav { display: flex; gap: 12px; padding: 20px 32px 28px; }
+  .btn-back { flex: 1; padding: 14px; border: 1.5px solid var(--border); border-radius: 10px; background: white; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-next { flex: 1.5; padding: 14px; background: var(--navy); border: none; border-radius: 10px; color: white; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .btn-next:hover { background: var(--navy2); }
+  .btn-next:disabled { background: var(--gray); cursor: not-allowed; }
+  .skip-link { text-align: center; padding: 0 0 16px; font-size: 13px; color: var(--gray2); cursor: pointer; text-decoration: underline; }
+
+  /* RESULTS */
+  .results-inner { max-width: 800px; margin: 0 auto; padding: 32px 24px 80px; }
+  .profile-summary { background: var(--navy); color: white; border-radius: 16px; padding: 24px 28px; margin-bottom: 24px; position: relative; }
+  .edit-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; }
+  .profile-name { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+  .profile-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { background: rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; }
+  .tag.highlight { background: var(--orange); }
+  .model-info-bar { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 10px 16px; margin-bottom: 20px; font-size: 13px; color: #1d4ed8; display: flex; align-items: center; gap: 8px; }
+  .matches-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .matches-title { font-size: 20px; font-weight: 800; color: var(--navy); }
+  .refresh-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--subtext); cursor: pointer; border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; background: white; }
+  .refresh-btn:hover { border-color: var(--navy); color: var(--navy); }
+  .match-card { background: white; border-radius: 16px; box-shadow: var(--shadow); margin-bottom: 16px; overflow: hidden; }
+  .match-card.best { border: 2px solid var(--orange); }
+  .best-badge { background: linear-gradient(90deg, var(--orange), #f0a233); color: white; padding: 10px 20px; font-size: 13px; font-weight: 700; }
+  .match-body { padding: 20px 24px; }
+  .match-top { display: flex; align-items: flex-start; gap: 16px; }
+  .match-logo { width: 52px; height: 52px; border-radius: 10px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+  .match-info { flex: 1; }
+  .match-title { font-size: 17px; font-weight: 800; color: var(--navy); }
+  .match-company { font-size: 13px; color: var(--subtext); margin-top: 2px; }
+  .match-meta { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+  .meta-pill { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--subtext); background: var(--bg); padding: 3px 10px; border-radius: 20px; }
+  .match-pct { width: 58px; height: 58px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: white; flex-shrink: 0; }
+  .pct-green { background: var(--green); }
+  .pct-orange { background: var(--orange); }
+  .pct-gray { background: #94a3b8; }
+  .match-details { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .match-salary { font-size: 18px; font-weight: 800; color: var(--green); }
+  .match-openings { font-size: 13px; color: var(--subtext); }
+  .match-desc { font-size: 14px; color: var(--subtext); margin-top: 10px; line-height: 1.6; }
+  .match-perks { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .perk { background: #f0fdf4; color: #166534; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .ai-reason { background: #fffbeb; border-left: 3px solid var(--orange); padding: 12px 16px; margin: 0 24px 14px; border-radius: 0 8px 8px 0; font-size: 13px; color: var(--subtext); font-style: italic; line-height: 1.6; }
+  .score-bars { display: flex; gap: 12px; margin: 12px 0 0; flex-wrap: wrap; }
+  .score-bar-item { flex: 1; min-width: 120px; }
+  .score-bar-label { font-size: 11px; color: var(--gray2); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .score-bar-track { height: 6px; background: var(--light); border-radius: 4px; }
+  .score-bar-fill { height: 6px; border-radius: 4px; transition: width 0.8s; }
+  .btn-apply { width: 100%; padding: 15px; background: var(--navy); color: white; border: none; border-radius: 0 0 14px 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .btn-apply:hover { background: #0f1e32; }
+  /* Loading */
+  .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.92); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; }
+  .spinner { width: 48px; height: 48px; border: 4px solid var(--light); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 16px; font-weight: 600; color: var(--navy); }
+  .loading-sub { font-size: 13px; color: var(--subtext); margin-top: 6px; }
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .steps { grid-template-columns: 1fr; }
+    .skill-grid, .interest-grid { grid-template-columns: repeat(2, 1fr); }
+    .wizard-inner, .results-inner { padding: 20px 14px 60px; }
+    .card-body { padding: 0 16px 20px; }
+    .wizard-nav { padding: 14px 16px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">PM</div>
+    <div class="nav-title">PM Internship <span>पीएम इंटर्नशिप योजना</span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span class="ml-badge">🤖 ML-Powered</span>
+    <button class="btn-primary" onclick="showPage('wizard'); goStep(1)">Get Started →</button>
+  </div>
+</nav>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading" style="display:none">
+  <div class="spinner"></div>
+  <div class="loading-text">Running ML Model...</div>
+  <div class="loading-sub">Gradient Boosting + Cosine Similarity Ensemble</div>
+</div>
+
+<!-- LANDING -->
+<div id="landing" class="page active">
+  <section class="hero">
+    <div class="ai-badge">✦ AI-Powered Recommendations</div>
+    <h1>Find Your Perfect<br><span>Internship</span></h1>
+    <p>Answer a few simple questions and get personalized internship recommendations matched to your skills and interests.</p>
+    <p class="hindi">कुछ सरल प्रश्नों का उत्तर दें और अपने कौशल के अनुसार इंटर्नशिप खोजें</p>
+    <button class="btn-hero" onclick="showPage('wizard'); goStep(1)">Start Now / शुरू करें →</button>
+  </section>
+  <div class="stats">
+    <div class="stat-card"><div style="font-size:26px;margin-bottom:8px">🏢</div><div class="stat-num">500+</div><div class="stat-label">Companies</div></div>
+    <div class="stat-card"><div style="font-size:26px;margin-bottom:8px">👥</div><div class="stat-num">10,000+</div><div class="stat-label">Internships</div></div>
+    <div class="stat-card"><div style="font-size:26px;margin-bottom:8px">🌐</div><div class="stat-num">28</div><div class="stat-label">States</div></div>
+    <div class="stat-card"><div style="font-size:26px;margin-bottom:8px">✅</div><div class="stat-num">12</div><div class="stat-label">Sectors</div></div>
+  </div>
+  <section class="how-section">
+    <h2>How It Works / कैसे काम करता है</h2>
+    <p class="sub">ML model analyzes your profile and finds the best match</p>
+    <div class="steps">
+      <div class="step-card"><div class="step-icon">📝</div><div class="step-num">1</div><div class="step-title">Tell Us About You<span class="hindi">अपने बारे में बताएं</span></div><p class="step-desc">Share education, skills, and interests through simple questions</p></div>
+      <div class="step-card"><div class="step-icon">🤖</div><div class="step-num">2</div><div class="step-title">ML Finds Matches<span class="hindi">ML मेच ढूंढता है</span></div><p class="step-desc">Gradient Boosting + Cosine Similarity ranks best-fit internships</p></div>
+      <div class="step-card"><div class="step-icon">🎯</div><div class="step-num">3</div><div class="step-title">Apply & Succeed<span class="hindi">आवेदन करें</span></div><p class="step-desc">Get 3–5 AI-ranked recommendations and apply directly</p></div>
+    </div>
+  </section>
+  <section class="cta-band">
+    <h2>Ready to Find Your Internship?</h2>
+    <p>Takes less than 2 minutes • No login required • ML-powered matching</p>
+    <button class="btn-cta" onclick="showPage('wizard'); goStep(1)">Get Started Now →</button>
+  </section>
+</div>
+
+<!-- WIZARD -->
+<div id="wizard" class="page">
+  <div class="wizard-inner">
+    <div class="progress-bar">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="step-dot-wrap" id="sw1"><div class="step-dot active" id="sd1">1</div><span class="step-dot-label">Basic Info</span></div>
+      <div class="step-dot-wrap" id="sw2"><div class="step-dot" id="sd2">2</div><span class="step-dot-label">Education</span></div>
+      <div class="step-dot-wrap" id="sw3"><div class="step-dot" id="sd3">3</div><span class="step-dot-label">Skills</span></div>
+      <div class="step-dot-wrap" id="sw4"><div class="step-dot" id="sd4">4</div><span class="step-dot-label">Interests</span></div>
+      <div class="step-dot-wrap" id="sw5"><div class="step-dot" id="sd5">5</div><span class="step-dot-label">Location</span></div>
+    </div>
+
+    <!-- Step 1 -->
+    <div id="step1" class="wizard-card">
+      <div class="card-header"><div class="card-avatar">👤</div><div class="card-title">Let's get to know you</div><div class="card-sub">Tell us your name to get started</div></div>
+      <div class="card-body">
+        <label class="field-label">Your Full Name / आपका पूरा नाम</label>
+        <div class="input-wrap"><span class="input-icon">👤</span><input type="text" class="text-input" id="userName" placeholder="Enter your full name"></div>
+        <label class="field-label">Mobile Number / मोबाइल नंबर (Optional)</label>
+        <div class="input-wrap"><span class="input-icon">📞</span><input type="tel" class="text-input" id="userPhone" placeholder="10-digit mobile number"></div>
+      </div>
+      <div class="wizard-nav">
+        <button class="btn-back" onclick="showPage('landing')">← Back</button>
+        <button class="btn-next" onclick="goStep(2)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="step2" class="wizard-card" style="display:none">
+      <div class="card-header"><div class="card-avatar">🎓</div><div class="card-title">Your Education</div><div class="card-sub">Select your highest qualification</div></div>
+      <div class="card-body">
+        <div id="edu-options">
+          <div class="option-row" onclick="selectEdu(this,'10th')"><span class="opt-icon">📚</span><div><div class="opt-title">10th Pass</div><div class="opt-hindi">दसवीं पास</div></div><div class="opt-check">✓</div></div>
+          <div class="option-row" onclick="selectEdu(this,'12th')"><span class="opt-icon">📖</span><div><div class="opt-title">12th Pass</div><div class="opt-hindi">बारहवीं पास</div></div><div class="opt-check">✓</div></div>
+          <div class="option-row" onclick="selectEdu(this,'ITI')"><span class="opt-icon">🔧</span><div><div class="opt-title">ITI / Diploma</div><div class="opt-hindi">आईटीआई / डिप्लोमा</div></div><div class="opt-check">✓</div></div>
+          <div class="option-row" onclick="selectEdu(this,'Graduate')"><span class="opt-icon">🎓</span><div><div class="opt-title">Graduate</div><div class="opt-hindi">स्नातक</div></div><div class="opt-check">✓</div></div>
+          <div class="option-row" onclick="selectEdu(this,'PostGraduate')"><span class="opt-icon">🏆</span><div><div class="opt-title">Post Graduate</div><div class="opt-hindi">स्नातकोत्तर</div></div><div class="opt-check">✓</div></div>
+        </div>
+        <div id="field-wrap" style="display:none;margin-top:18px">
+          <div class="section-label">Field of Study / विषय</div>
+          <div class="chip-grid" id="field-chips">
+            <span class="chip" onclick="selChip(this,'field')">Arts / Humanities</span><span class="chip" onclick="selChip(this,'field')">Science</span><span class="chip" onclick="selChip(this,'field')">Commerce</span><span class="chip" onclick="selChip(this,'field')">Engineering</span><span class="chip" onclick="selChip(this,'field')">Medical / Nursing</span><span class="chip" onclick="selChip(this,'field')">Agriculture</span><span class="chip" onclick="selChip(this,'field')">Computer Science / IT</span><span class="chip" onclick="selChip(this,'field')">Management</span><span class="chip" onclick="selChip(this,'field')">Law</span><span class="chip" onclick="selChip(this,'field')">Other</span>
+          </div>
+        </div>
+      </div>
+      <div class="wizard-nav">
+        <button class="btn-back" onclick="goStep(1)">← Back</button>
+        <button class="btn-next" id="edu-next" disabled onclick="goStep(3)">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="step3" class="wizard-card" style="display:none">
+      <div class="card-header"><div class="card-avatar">🔧</div><div class="card-title">Your Skills</div><div class="card-sub">Select all skills you have (choose multiple)</div></div>
+      <div class="card-body">
+        <div class="section-label">Technical / तकनीकी</div>
+        <div class="skill-grid">
+          <div class="skill-card" onclick="togSkill(this,'Computer Basics')"><span class="sk-icon">💻</span><div class="sk-label">Computer Basics</div></div>
+          <div class="skill-card" onclick="togSkill(this,'MS Office / Excel')"><span class="sk-icon">📊</span><div class="sk-label">MS Office / Excel</div></div>
+          <div class="skill-card" onclick="togSkill(this,'Programming')"><span class="sk-icon">👨‍💻</span><div class="sk-label">Programming</div></div>
+          <div class="skill-card" onclick="togSkill(this,'Data Entry')"><span class="sk-icon">⌨️</span><div class="sk-label">Data Entry</div></div>
+          <div class="skill-card" onclick="togSkill(this,'Mechanical Work')"><span class="sk-icon">🔩</span><div class="sk-label">Mechanical Work</div></div>
+          <div class="skill-card" onclick="togSkill(this,'Electrical Work')"><span class="sk-icon">⚡</span><div class="sk-label">Electrical Work</div></div>
+        </div>
+        <div class="section-label">Soft Skills / व्यवहारिक कौशल</div>
+        <div class="skill-grid">
+          <div class="skill-card" onclick="togSkill(this,'Communication')"><span class="sk-icon">💬</span><div class="sk-label">Communication</div></div>
+          <div class="skill-card" onclick="togSkill(this,'Teamwork')"><span class="sk-icon">🤝</span><div class="sk-label">Teamwork</div></div>
+          <div class="skill-card" onclick="togSkill(this,'Customer Service')"><span class="sk-icon">😊</span><div class="sk-label">Customer Service</div></div>
+          <div class="skill-card" onclick="togSkill(this,'Leadership')"><span class="sk-icon">👑</span><div class="sk-label">Leadership</div></div>
+          <div class="skill-card" onclick="togSkill(this,'Problem Solving')"><span class="sk-icon">🧩</span><div class="sk-label">Problem Solving</div></div>
+        </div>
+        <div class="section-label">Other / अन्य</div>
+        <div class="skill-grid">
+          <div class="skill-card" onclick="togSkill(this,'Driving License')"><span class="sk-icon">🚗</span><div class="sk-label">Driving License</div></div>
+          <div class="skill-card" onclick="togSkill(this,'Accounting')"><span class="sk-icon">🧾</span><div class="sk-label">Accounting</div></div>
+          <div class="skill-card" onclick="togSkill(this,'Teaching')"><span class="sk-icon">👩‍🏫</span><div class="sk-label">Teaching</div></div>
+          <div class="skill-card" onclick="togSkill(this,'Healthcare')"><span class="sk-icon">🏥</span><div class="sk-label">Healthcare</div></div>
+          <div class="skill-card" onclick="togSkill(this,'Agriculture/Farming')"><span class="sk-icon">🌾</span><div class="sk-label">Agriculture / Farming</div></div>
+        </div>
+        <div class="selected-count" id="skills-count" style="display:none"></div>
+      </div>
+      <div class="wizard-nav"><button class="btn-back" onclick="goStep(2)">← Back</button><button class="btn-next" onclick="goStep(4)">Next →</button></div>
+      <div class="skip-link" onclick="goStep(4)">Skip this step / इस चरण को छोड़ें</div>
+    </div>
+
+    <!-- Step 4 -->
+    <div id="step4" class="wizard-card" style="display:none">
+      <div class="card-header"><div class="card-avatar">❤️</div><div class="card-title">Your Interests</div><div class="card-sub">Which sectors interest you? (Select up to 3)</div></div>
+      <div class="card-body">
+        <div class="interest-grid">
+          <div class="interest-card" onclick="togInterest(this,'IT & Technology')"><div class="chk">✓</div><div class="int-icon-wrap">💻</div><div class="int-name">IT & Technology</div><div class="int-hindi">आईटी और टेक्नोलॉजी</div></div>
+          <div class="interest-card" onclick="togInterest(this,'Manufacturing')"><div class="chk">✓</div><div class="int-icon-wrap">🏭</div><div class="int-name">Manufacturing</div><div class="int-hindi">विनिर्माण</div></div>
+          <div class="interest-card" onclick="togInterest(this,'Healthcare')"><div class="chk">✓</div><div class="int-icon-wrap">🏥</div><div class="int-name">Healthcare</div><div class="int-hindi">स्वास्थ्य सेवा</div></div>
+          <div class="interest-card" onclick="togInterest(this,'Agriculture')"><div class="chk">✓</div><div class="int-icon-wrap">🌾</div><div class="int-name">Agriculture</div><div class="int-hindi">कृषि</div></div>
+          <div class="interest-card" onclick="togInterest(this,'Banking & Finance')"><div class="chk">✓</div><div class="int-icon-wrap">🏦</div><div class="int-name">Banking & Finance</div><div class="int-hindi">बैंकिंग और वित्त</div></div>
+          <div class="interest-card" onclick="togInterest(this,'Education')"><div class="chk">✓</div><div class="int-icon-wrap">📚</div><div class="int-name">Education</div><div class="int-hindi">शिक्षा</div></div>
+          <div class="interest-card" onclick="togInterest(this,'Retail & Sales')"><div class="chk">✓</div><div class="int-icon-wrap">🛒</div><div class="int-name">Retail & Sales</div><div class="int-hindi">खुदरा और बिक्री</div></div>
+          <div class="interest-card" onclick="togInterest(this,'Construction')"><div class="chk">✓</div><div class="int-icon-wrap">🏗️</div><div class="int-name">Construction</div><div class="int-hindi">निर्माण</div></div>
+          <div class="interest-card" onclick="togInterest(this,'Hospitality')"><div class="chk">✓</div><div class="int-icon-wrap">🏨</div><div class="int-name">Hospitality</div><div class="int-hindi">आतिथ्य</div></div>
+          <div class="interest-card" onclick="togInterest(this,'Government')"><div class="chk">✓</div><div class="int-icon-wrap">🏛️</div><div class="int-name">Government</div><div class="int-hindi">सरकारी</div></div>
+          <div class="interest-card" onclick="togInterest(this,'Logistics')"><div class="chk">✓</div><div class="int-icon-wrap">🚚</div><div class="int-name">Logistics</div><div class="int-hindi">परिवहन</div></div>
+          <div class="interest-card" onclick="togInterest(this,'Energy & Power')"><div class="chk">✓</div><div class="int-icon-wrap">⚡</div><div class="int-name">Energy & Power</div><div class="int-hindi">ऊर्जा</div></div>
+        </div>
+        <div class="selected-count" id="interests-count" style="display:none"></div>
+      </div>
+      <div class="wizard-nav"><button class="btn-back" onclick="goStep(3)">← Back</button><button class="btn-next" onclick="goStep(5)">Next →</button></div>
+      <div class="skip-link" onclick="goStep(5)">Skip this step / इस चरण को छोड़ें</div>
+    </div>
+
+    <!-- Step 5 -->
+    <div id="step5" class="wizard-card" style="display:none">
+      <div class="card-header"><div class="card-avatar">📍</div><div class="card-title">Location Preference</div><div class="card-sub">Where would you like to work?</div></div>
+      <div class="card-body">
+        <label class="field-label">Your Current State / आपका राज्य</label>
+        <select class="select-input" id="userState">
+          <option value="">Select your state</option>
+          <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option><option>Chhattisgarh</option><option>Goa</option><option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option><option>Delhi</option>
+        </select>
+        <div class="section-label">Preferred Work Location Type / कार्य स्थान प्रकार</div>
+        <div class="option-row" onclick="selLoc(this,'Big City')"><span class="opt-icon">🏙️</span><div><div class="opt-title">Big City / बड़ा शहर</div><div class="opt-hindi">Metro cities like Delhi, Mumbai</div></div><div class="opt-check">✓</div></div>
+        <div class="option-row" onclick="selLoc(this,'Small City')"><span class="opt-icon">🏘️</span><div><div class="opt-title">Small City/Town / छोटा शहर</div><div class="opt-hindi">District headquarters, smaller cities</div></div><div class="opt-check">✓</div></div>
+        <div class="option-row" onclick="selLoc(this,'Village/Rural')"><span class="opt-icon">🌲</span><div><div class="opt-title">Village/Rural / गांव</div><div class="opt-hindi">Near my village or rural area</div></div><div class="opt-check">✓</div></div>
+        <div class="option-row" onclick="selLoc(this,'Work from Home')"><span class="opt-icon">🏠</span><div><div class="opt-title">Work from Home / घर से काम</div><div class="opt-hindi">Online/Remote work</div></div><div class="opt-check">✓</div></div>
+        <div class="option-row" onclick="selLoc(this,'Anywhere')"><span class="opt-icon">🌍</span><div><div class="opt-title">Anywhere / कहीं भी</div><div class="opt-hindi">I am flexible with location</div></div><div class="opt-check">✓</div></div>
+      </div>
+      <div class="wizard-nav">
+        <button class="btn-back" onclick="goStep(4)">← Back</button>
+        <button class="btn-next" onclick="callMLAPI()">Get Recommendations →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="page">
+  <div class="results-inner">
+    <div class="profile-summary">
+      <button class="edit-btn" onclick="goStep(1); showPage('wizard')">✏️ Edit Profile</button>
+      <div class="profile-name" id="res-name"></div>
+      <div class="profile-tags" id="res-tags"></div>
+    </div>
+    <div class="model-info-bar" id="model-info-bar">🤖 Powered by <strong>Gradient Boosting + Cosine Similarity Ensemble</strong> (ML: 65% | Content: 35%)</div>
+    <div class="matches-header">
+      <div class="matches-title">✦ <span id="match-count">5</span> Best Matches</div>
+      <button class="refresh-btn" onclick="callMLAPI()">↻ Refresh</button>
+    </div>
+    <div id="match-list"></div>
+  </div>
+</div>
+
+<script>
+const state = { name:'', phone:'', education:'', field:'', skills:new Set(), interests:new Set(), location:'', state:'' };
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function goStep(n) {
+  for(let i=1;i<=5;i++) {
+    document.getElementById('step'+i).style.display='none';
+    const dot=document.getElementById('sd'+i), wrap=document.getElementById('sw'+i);
+    dot.className='step-dot'; wrap.classList.remove('active');
+    if(i<n){dot.classList.add('completed');dot.innerHTML='✓';}
+    else if(i===n){dot.classList.add('active');dot.innerHTML=i;wrap.classList.add('active');}
+    else dot.innerHTML=i;
+  }
+  document.getElementById('step'+n).style.display='block';
+  document.getElementById('progressFill').style.width=(((n-1)/4)*100)+'%';
+  window.scrollTo(0,0);
+}
+
+function selectEdu(el,val) {
+  document.querySelectorAll('#edu-options .option-row').forEach(r=>r.classList.remove('selected'));
+  el.classList.add('selected'); state.education=val;
+  document.getElementById('field-wrap').style.display=['Graduate','PostGraduate','ITI'].includes(val)?'block':'none';
+  document.getElementById('edu-next').disabled=false;
+}
+function selChip(el,group) {
+  el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected'); state.field=el.textContent;
+}
+function togSkill(el,val) {
+  el.classList.toggle('selected');
+  state.skills.has(val)?state.skills.delete(val):state.skills.add(val);
+  const cnt=document.getElementById('skills-count');
+  cnt.style.display=state.skills.size?'block':'none';
+  if(state.skills.size) cnt.textContent=`✓ ${state.skills.size} skill${state.skills.size>1?'s':''} selected`;
+}
+function togInterest(el,val) {
+  if(el.classList.contains('selected')){el.classList.remove('selected');state.interests.delete(val);}
+  else{if(state.interests.size>=3){alert('Select up to 3 interests only.');return;}el.classList.add('selected');state.interests.add(val);}
+  const cnt=document.getElementById('interests-count');
+  cnt.style.display=state.interests.size?'block':'none';
+  if(state.interests.size) cnt.textContent=`${state.interests.size}/3 selected - you can add ${3-state.interests.size} more`;
+}
+function selLoc(el,val) {
+  document.querySelectorAll('#step5 .option-row').forEach(r=>r.classList.remove('selected'));
+  el.classList.add('selected'); state.location=val;
+}
+
+// ─── ML API Call ───
+async function callMLAPI() {
+  state.name = document.getElementById('userName').value || 'Candidate';
+  state.state = document.getElementById('userState').value || '';
+
+  const payload = {
+    name: state.name,
+    education: state.education || '10th',
+    field: state.field,
+    skills: [...state.skills],
+    interests: [...state.interests],
+    location: state.location || 'Anywhere',
+    state: state.state,
+    top_n: 5
+  };
+
+  document.getElementById('loading').style.display='flex';
+
+  try {
+    const resp = await fetch('/api/recommend', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
+    if(!data.success) throw new Error(data.error);
+    renderResults(data);
+  } catch(err) {
+    // Fallback: show error and stay on wizard
+    alert('API Error: ' + err.message + '\n\nMake sure the Flask server (app.py) is running on port 5000.');
+  } finally {
+    document.getElementById('loading').style.display='none';
+  }
+}
+
+function renderResults(data) {
+  const recs = data.recommendations;
+  // Profile bar
+  document.getElementById('res-name').textContent = state.name;
+  let tags = '';
+  if(state.education) tags += `<span class="tag">🎓 ${state.education}</span>`;
+  if(state.field) tags += `<span class="tag">${state.field}</span>`;
+  if(state.state) tags += `<span class="tag">📍 ${state.state}</span>`;
+  if(state.location) tags += `<span class="tag">${state.location}</span>`;
+  [...state.skills].forEach(s => tags += `<span class="tag">🔧 ${s}</span>`);
+  [...state.interests].forEach(i => tags += `<span class="tag highlight">${i}</span>`);
+  document.getElementById('res-tags').innerHTML = tags;
+  document.getElementById('match-count').textContent = recs.length;
+  if(data.model_info) {
+    document.getElementById('model-info-bar').innerHTML =
+      `🤖 Powered by <strong>${data.model_info.type}</strong> &nbsp;|&nbsp; ML weight: ${(data.model_info.weights.ml_model*100).toFixed(0)}% &nbsp;|&nbsp; Content weight: ${(data.model_info.weights.content_similarity*100).toFixed(0)}%`;
+  }
+
+  let html = '';
+  recs.forEach((r,i) => {
+    const pctCls = r.match_pct>=80?'pct-green':r.match_pct>=65?'pct-orange':'pct-gray';
+    const mlPct = Math.round(r.ml_probability*100);
+    const cosPct = Math.round(r.cosine_similarity*100);
+    html += `
+    <div class="match-card ${i===0?'best':''}">
+      ${i===0?'<div class="best-badge">✦ Best Match for You!</div>':''}
+      <div class="match-body">
+        <div class="match-top">
+          <div class="match-logo">${r.icon}</div>
+          <div class="match-info">
+            <div class="match-title">${r.title}</div>
+            <div class="match-company">${r.company}</div>
+            <div class="match-meta">
+              <span class="meta-pill">📍 ${r.location_city}</span>
+              <span class="meta-pill">⏱ ${r.duration}</span>
+            </div>
+          </div>
+          <div class="match-pct ${pctCls}">${r.match_pct}%<br><span style="font-size:9px;font-weight:500">Match</span></div>
+        </div>
+        <div class="match-details">
+          <div class="match-salary">₹ ₹${r.salary.toLocaleString()}/month</div>
+          <div class="match-openings">👥 ${r.openings} openings</div>
+        </div>
+        <div class="match-desc">${r.description}</div>
+        <div class="match-perks">${r.perks.map(p=>`<span class="perk">✓ ${p}</span>`).join('')}</div>
+        <!-- ML Score breakdown -->
+        <div class="score-bars">
+          <div class="score-bar-item">
+            <div class="score-bar-label"><span>ML Score</span><span>${mlPct}%</span></div>
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:${mlPct}%;background:var(--navy)"></div></div>
+          </div>
+          <div class="score-bar-item">
+            <div class="score-bar-label"><span>Content Similarity</span><span>${cosPct}%</span></div>
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:${cosPct}%;background:var(--orange)"></div></div>
+          </div>
+          <div class="score-bar-item">
+            <div class="score-bar-label"><span>Final Score</span><span>${Math.round(r.final_score*100)}%</span></div>
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:${Math.round(r.final_score*100)}%;background:var(--green)"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="ai-reason">💡 ${r.match_reason}</div>
+      <button class="btn-apply">Apply Now / आवेदन करें ›</button>
+    </div>`;
+  });
+  document.getElementById('match-list').innerHTML = html;
+  showPage('results');
+}
+</script>
+</body>
+</html>
